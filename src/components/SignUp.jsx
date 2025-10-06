@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { signUp } from '../utils/authService';
 
 export default function SignUp({ onSignUpSuccess, switchToSignIn }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -46,7 +48,7 @@ export default function SignUp({ onSignUpSuccess, switchToSignIn }) {
     return (
       <div className="auth-page">
         <div className="auth-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 className="text-gradient" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+          <h1 className="text-gradient" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
             MemoWord
           </h1>
           <p style={{ marginTop: '0.5rem', color: 'var(--color-primary)', opacity: 0.9 }}>
@@ -61,7 +63,7 @@ export default function SignUp({ onSignUpSuccess, switchToSignIn }) {
             <p>After verification, you can sign in to access your dashboard.</p>
           </div>
           <div className="auth-switch">
-            <p>Already verified? <button onClick={switchToSignIn} className="link-button">Sign In</button></p>
+            <p>Already verified? <button onClick={() => navigate('/signin')} className="link-button">Sign In</button></p>
           </div>
         </div>
       </div>
@@ -71,7 +73,7 @@ export default function SignUp({ onSignUpSuccess, switchToSignIn }) {
   return (
     <div className="auth-page">
       <div className="auth-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1 className="text-gradient" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+        <h1 className="text-gradient" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
           Join Memoword today
         </h1>
         <p style={{ marginTop: '0.5rem', color: 'var(--color-primary)', opacity: 0.9, textAlign: 'center', width: '100%' }}>
@@ -130,7 +132,7 @@ export default function SignUp({ onSignUpSuccess, switchToSignIn }) {
         </form>
         
         <div className="auth-switch">
-          <p>Already have an account? <button onClick={switchToSignIn} className="link-button">Sign In</button></p>
+          <p>Already have an account? <button onClick={() => navigate('/signin')} className="link-button">Sign In</button></p>
         </div>
       </div>
     </div>

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { signIn, resetPassword } from '../utils/authService';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function SignIn({ onSignInSuccess, switchToSignUp }) {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -67,7 +69,7 @@ export default function SignIn({ onSignInSuccess, switchToSignUp }) {
     return (
       <div className="auth-page">
         <div className="auth-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 className="text-gradient" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+          <h1 className="text-gradient" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
             MemoWord
           </h1>
           <p style={{ marginTop: '0.5rem', color: 'var(--color-primary)', opacity: 0.9 }}>
@@ -125,7 +127,7 @@ export default function SignIn({ onSignInSuccess, switchToSignUp }) {
   return (
     <div className="auth-page">
       <div className="auth-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1 className="text-gradient" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+        <h1 className="text-gradient" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
           Welcome back to Memoword
         </h1>
         <p style={{ marginTop: '0.5rem', color: 'var(--color-primary)', opacity: 0.9, textAlign: 'center', width: '100%' }}>
@@ -178,7 +180,7 @@ export default function SignIn({ onSignInSuccess, switchToSignUp }) {
               Forgot Password?
             </button>
           </p>
-          <p>Don't have an account? <button onClick={switchToSignUp} className="link-button">Sign Up</button></p>
+          <p>Don't have an account? <button onClick={() => navigate('/signup')} className="link-button">Sign Up</button></p>
         </div>
       </div>
     </div>

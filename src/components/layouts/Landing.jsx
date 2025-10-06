@@ -1,9 +1,9 @@
-import { useContext, useState, useEffect } from 'react';
-import { AppContext } from '../../App.jsx';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getPublicUrl } from '../../utils/storage';
 
 export default function Landing() {
-  const { setSelectedPage, setAuthMode } = useContext(AppContext);
+  const navigate = useNavigate();
   const [testimonialAvatarUrl, setTestimonialAvatarUrl] = useState('');
   const [showSetupInfo, setShowSetupInfo] = useState(false);
 
@@ -37,13 +37,11 @@ export default function Landing() {
   ];
 
   const handleGetStarted = () => {
-    setAuthMode('signup');
-    setSelectedPage(4);
+    navigate('/signup');
   };
 
   const handleSignIn = () => {
-    setAuthMode('signin');
-    setSelectedPage(4);
+    navigate('/signin');
   };
 
   return (

@@ -1,10 +1,12 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import ProgressBar from "../ProgressBar"
 import { isEncountered, shuffle } from "../../utils"
 import DEFINITIONS from '../../utils/VOCAB.json'
 
 export default function Challenge(props) {
-    const { day, daysWords, handleChangePage, handleIncrementAttempts, handleCompleteDay, PLAN } = props
+    const { day, daysWords, handleIncrementAttempts, handleCompleteDay, PLAN } = props
+    const navigate = useNavigate()
 
     const [wordIndex, setWordIndex] = useState(0)
     const [inputVal, setInputVal] = useState('')
@@ -73,7 +75,7 @@ export default function Challenge(props) {
 
             <div className="challenge-btns">
                 <button onClick={() => {
-                    handleChangePage(1)
+                    navigate('/dashboard')
                 }} className="card-button-secondary">
                     <h6>Quit</h6>
                 </button>

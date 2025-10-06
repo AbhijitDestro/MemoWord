@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { convertMilliseconds, countdownIn24Hours } from "../utils"
 
 export default function Countdown(props) {
-    const { handleChangePage, daysWords, datetime, day } = props
+    const { daysWords, datetime, day } = props
+    const navigate = useNavigate()
 
     const targetMillis = datetime || Date.UTC(1944, 2, 17, 12, 0, 0)
     const [remainingMs, setRemainingMs] = useState(countdownIn24Hours(targetMillis))
@@ -32,7 +34,7 @@ export default function Countdown(props) {
                 </div>
             </div>
 
-            <button onClick={() => { handleChangePage(2) }} className="start-task">
+            <button onClick={() => { navigate('/challenge') }} className="start-task">
                 <h6>Start</h6>
             </button>
         </div>

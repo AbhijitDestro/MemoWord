@@ -7,6 +7,7 @@ import Landing from './components/layouts/Landing'
 import SignIn from './components/SignIn'
 import SignUp from './components/SignUp'
 import { useState, useEffect, createContext } from "react"
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 
 import WORDS from './utils/VOCAB.json'
 
@@ -19,12 +20,12 @@ export const AppContext = createContext()
 
 function AppContent() {
   const { currentUser, userData, setUserData, loading, initError } = useAuth();
-  const [selectedPage, setSelectedPage] = useState(3) // 3 is for landing page
-  const [authMode, setAuthMode] = useState('landing') // 'landing', 'signin', 'signup'
   const [day, setDay] = useState(1)
   const [datetime, setDatetime] = useState(null)
   const [history, setHistory] = useState({})
   const [attempts, setAttempts] = useState(0)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   console.log('AppContent: Render', { loading, initError, currentUser: !!currentUser });
 
@@ -43,14 +44,16 @@ function AppContent() {
   })
 
   function handleChangePage(pageIndex) {
-    setSelectedPage(pageIndex)
+    // Map page index to routes
+    const routes = ['/', '/welcome', '/dashboard', '/challenge', '/landing']
+    navigate(routes[pageIndex] || '/')
   }
 
   function handleCreateAccount(name) {
     // For local storage users, we still need this
     if (!name) { return }
     localStorage.setItem('username', name)
-    handleChangePage(1)
+    navigate('/welcome')
   }
 
   function handleCompleteDay() {
@@ -73,7 +76,7 @@ function AppContent() {
       datetime: newDatetime
     }))
 
-    setSelectedPage(1)
+    navigate('/dashboard')
   }
 
   function handleIncrementAttempts() {
@@ -92,36 +95,36 @@ function AppContent() {
 
   function handleSignOut() {
     signOut()
-    setSelectedPage(3) // Go back to landing page
-    setAuthMode('landing')
+    navigate('/')
   }
 
-  // Handle authentication flow
+  // Handle authentication flow based on user state and location
   useEffect(() => {
-    console.log('AppContent: Auth effect', { loading, currentUser: !!currentUser, authMode });
+    console.log('AppContent: Auth effect', { loading, currentUser: !!currentUser, location });
     
     if (loading) return;
 
     if (initError) {
       console.log('AppContent: Init error, showing landing page');
-      setSelectedPage(3);
       return;
     }
 
+    // Redirect logic based on authentication state
     if (currentUser) {
-      // User is authenticated, go to dashboard
-      console.log('AppContent: User authenticated, going to dashboard');
-      setSelectedPage(1)
-    } else if (authMode === 'signin' || authMode === 'signup') {
-      // Stay on auth pages
-      console.log('AppContent: On auth page');
-      setSelectedPage(4) // Special page for auth
+      // User is authenticated
+      if (location.pathname === '/' || location.pathname === '/signin' || location.pathname === '/signup') {
+        console.log('AppContent: User authenticated, redirecting to dashboard');
+        navigate('/dashboard', { replace: true });
+      }
     } else {
-      // No user and not on auth pages, show landing
-      console.log('AppContent: No user, showing landing page');
-      setSelectedPage(3)
+      // No user, protect routes that require authentication
+      const protectedRoutes = ['/dashboard', '/challenge', '/welcome']
+      if (protectedRoutes.includes(location.pathname)) {
+        console.log('AppContent: No user, redirecting to landing');
+        navigate('/', { replace: true });
+      }
     }
-  }, [currentUser, authMode, loading, initError])
+  }, [currentUser, loading, initError, location, navigate])
 
   // Handle challenge expiration
   useEffect(() => {
@@ -188,35 +191,65 @@ function AppContent() {
 
   const handleSignInSuccess = (user) => {
     console.log('AppContent: Sign in success', user);
-    setSelectedPage(1); // Redirect to dashboard
-    setAuthMode('landing');
+    navigate('/dashboard'); // Redirect to dashboard
   };
 
-  const pages = {
-    0: <Layout name={currentUser?.email || ''} setName={() => {}}><Welcome handleCreateAccount={handleCreateAccount} username="hello world" name={currentUser?.email || ''} setName={() => {}} /></Layout>,
-    1: <Layout name={currentUser?.email || ''} setName={() => {}}><Dashboard history={history} name={currentUser?.user_metadata?.full_name || currentUser?.email || ''} attempts={attempts} PLAN={PLAN} day={day} handleChangePage={handleChangePage} daysWords={daysWords} datetime={datetime} /></Layout>,
-    2: <Layout name={currentUser?.email || ''} setName={() => {}}><Challenge day={day} daysWords={daysWords} handleChangePage={handleChangePage} handleIncrementAttempts={handleIncrementAttempts} handleCompleteDay={handleCompleteDay} PLAN={PLAN} /></Layout>,
-    3: <LandingLayout><Landing /></LandingLayout>,
-    4: (
-      <div className="auth-page">
-        {authMode === 'signin' ? (
-          <SignIn 
-            onSignInSuccess={handleSignInSuccess}
-            switchToSignUp={() => setAuthMode('signup')}
-          />
-        ) : (
-          <SignUp 
-            onSignUpSuccess={handleSignInSuccess}
-            switchToSignIn={() => setAuthMode('signin')}
-          />
-        )}
-      </div>
-    )
-  }
-
   return (
-    <AppContext.Provider value={{ setSelectedPage, setAuthMode, handleSignOut }}>
-      {pages[selectedPage]}
+    <AppContext.Provider value={{ handleSignOut }}>
+      <Routes>
+        <Route path="/" element={
+          <LandingLayout>
+            <Landing />
+          </LandingLayout>
+        } />
+        <Route path="/welcome" element={
+          <Layout name={currentUser?.email || ''} setName={() => {}}>
+            <Welcome handleCreateAccount={handleCreateAccount} username="hello world" name={currentUser?.email || ''} setName={() => {}} />
+          </Layout>
+        } />
+        <Route path="/dashboard" element={
+          <Layout name={currentUser?.email || ''} setName={() => {}}>
+            <Dashboard 
+              history={history} 
+              name={currentUser?.user_metadata?.full_name || currentUser?.email || ''} 
+              attempts={attempts} 
+              PLAN={PLAN} 
+              day={day} 
+              handleChangePage={handleChangePage} 
+              daysWords={daysWords} 
+              datetime={datetime} 
+            />
+          </Layout>
+        } />
+        <Route path="/challenge" element={
+          <Layout name={currentUser?.email || ''} setName={() => {}}>
+            <Challenge 
+              day={day} 
+              daysWords={daysWords} 
+              handleChangePage={handleChangePage} 
+              handleIncrementAttempts={handleIncrementAttempts} 
+              handleCompleteDay={handleCompleteDay} 
+              PLAN={PLAN} 
+            />
+          </Layout>
+        } />
+        <Route path="/signin" element={
+          <div className="auth-page">
+            <SignIn 
+              onSignInSuccess={handleSignInSuccess}
+              switchToSignUp={() => navigate('/signup')}
+            />
+          </div>
+        } />
+        <Route path="/signup" element={
+          <div className="auth-page">
+            <SignUp 
+              onSignUpSuccess={handleSignInSuccess}
+              switchToSignIn={() => navigate('/signin')}
+            />
+          </div>
+        } />
+      </Routes>
     </AppContext.Provider>
   )
 }

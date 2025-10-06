@@ -1,9 +1,11 @@
 import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../../App.jsx'
 
 export default function Layout(props) {
   const { children, name } = props
-  const { setSelectedPage, handleSignOut } = useContext(AppContext)
+  const { handleSignOut } = useContext(AppContext)
+  const navigate = useNavigate()
 
   return (
       <>
@@ -15,7 +17,7 @@ export default function Layout(props) {
           }}>
               <h1 
                 className="text-gradient" 
-                onClick={() => setSelectedPage(name ? 1 : 3)} 
+                onClick={() => navigate(name ? '/dashboard' : '/')} 
                 style={{ cursor: 'pointer', margin: 0 }}
               >
                 MemoWord
