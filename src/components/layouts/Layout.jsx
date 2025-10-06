@@ -1,11 +1,18 @@
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../../App.jsx'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function Layout(props) {
-  const { children, name } = props
+  const { children } = props
   const { handleSignOut } = useContext(AppContext)
+  const { currentUser } = useAuth()
   const navigate = useNavigate()
+
+  // Get user's first name or email for display
+  const displayName = currentUser?.user_metadata?.full_name || 
+                     currentUser?.email || 
+                     ''
 
   return (
       <>
@@ -17,17 +24,24 @@ export default function Layout(props) {
           }}>
               <h1 
                 className="text-gradient" 
-                onClick={() => navigate(name ? '/dashboard' : '/')} 
+                onClick={() => {
+                  // Navigate based on authentication status
+                  if (currentUser) {
+                    navigate('/dashboard')
+                  } else {
+                    navigate('/')
+                  }
+                }} 
                 style={{ cursor: 'pointer', margin: 0 }}
               >
                 MemoWord
               </h1>
-              {name && (
+              {currentUser && (
                 <button className="card-button-secondary" onClick={handleSignOut}>
                   Sign Out
                 </button>
               )}
-              {!name && <div></div>} {/* Spacer for proper flex alignment when no sign out button */}
+              {!currentUser && <div></div>} {/* Spacer for proper flex alignment when no sign out button */}
           </header>
           <main>
               {children}

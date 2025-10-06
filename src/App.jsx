@@ -19,7 +19,7 @@ import { signOut } from './utils/authService'
 export const AppContext = createContext()
 
 function AppContent() {
-  const { currentUser, userData, setUserData, loading, initError } = useAuth();
+  const { currentUser, userProfile, userData, setUserData, loading, initError } = useAuth();
   const [day, setDay] = useState(1)
   const [datetime, setDatetime] = useState(null)
   const [history, setHistory] = useState({})
@@ -47,13 +47,6 @@ function AppContent() {
     // Map page index to routes
     const routes = ['/', '/welcome', '/dashboard', '/challenge', '/landing']
     navigate(routes[pageIndex] || '/')
-  }
-
-  function handleCreateAccount(name) {
-    // For local storage users, we still need this
-    if (!name) { return }
-    localStorage.setItem('username', name)
-    navigate('/welcome')
   }
 
   function handleCompleteDay() {
@@ -113,8 +106,9 @@ function AppContent() {
     if (currentUser) {
       // User is authenticated
       if (location.pathname === '/' || location.pathname === '/signin' || location.pathname === '/signup') {
-        console.log('AppContent: User authenticated, redirecting to dashboard');
-        navigate('/dashboard', { replace: true });
+        console.log('AppContent: User authenticated, redirecting to welcome page to collect name if needed');
+        // Check if user has a first name, if not redirect to welcome page
+        navigate('/welcome', { replace: true });
       }
     } else {
       // No user, protect routes that require authentication
@@ -191,7 +185,7 @@ function AppContent() {
 
   const handleSignInSuccess = (user) => {
     console.log('AppContent: Sign in success', user);
-    navigate('/dashboard'); // Redirect to dashboard
+    navigate('/welcome'); // Redirect to welcome page to check if name is needed
   };
 
   return (
@@ -203,15 +197,15 @@ function AppContent() {
           </LandingLayout>
         } />
         <Route path="/welcome" element={
-          <Layout name={currentUser?.email || ''} setName={() => {}}>
-            <Welcome handleCreateAccount={handleCreateAccount} username="hello world" name={currentUser?.email || ''} setName={() => {}} />
+          <Layout>
+            <Welcome />
           </Layout>
         } />
         <Route path="/dashboard" element={
-          <Layout name={currentUser?.email || ''} setName={() => {}}>
+          <Layout>
             <Dashboard 
               history={history} 
-              name={currentUser?.user_metadata?.full_name || currentUser?.email || ''} 
+              name={userProfile?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || ''} 
               attempts={attempts} 
               PLAN={PLAN} 
               day={day} 
@@ -222,7 +216,7 @@ function AppContent() {
           </Layout>
         } />
         <Route path="/challenge" element={
-          <Layout name={currentUser?.email || ''} setName={() => {}}>
+          <Layout>
             <Challenge 
               day={day} 
               daysWords={daysWords} 

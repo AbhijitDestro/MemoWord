@@ -9,11 +9,13 @@ export default function Stats(props) {
   const flooredLvl=Math.floor(currLvl)
   const remainder= (currLvl - flooredLvl) *100
 
+  // Format the welcome message to include "Welcome, " prefix
+  const welcomeMessage = name ? `Welcome, ${name}` : 'Welcome'
+
   return (
     <div className="card stats-card">
       <div className="welcome-text">
-        <h6>Welcome</h6>
-        <h4 className="text-large">{name}</h4>
+        <h4 className="text-large">{welcomeMessage}</h4>
       </div>
       <div className="stats-column">
         <div>

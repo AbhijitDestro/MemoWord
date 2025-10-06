@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { onAuthStateChange, getCurrentUser, getUserProfile, createUserProfile, handleEmailVerification } from '../utils/authService';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -39,8 +40,18 @@ export function AuthProvider({ children }) {
         if (event === 'USER_UPDATED' && user.email_confirmed_at) {
           // Show alert for email verification
           if (!emailVerified) {
-            window.alert('Your email has been verified successfully! Redirecting to dashboard...');
+            window.alert('Your email has been verified successfully! Redirecting...');
             setEmailVerified(true);
+            
+            // Check if user has a first name set
+            const profile = await getUserProfile(user.id);
+            if (profile.data && !profile.data.full_name) {
+              // Redirect to welcome page to collect first name
+              window.location.href = '/welcome';
+            } else {
+              // Redirect to dashboard
+              window.location.href = '/dashboard';
+            }
           }
         }
         
@@ -107,8 +118,21 @@ export function AuthProvider({ children }) {
       try {
         const { verified, error } = await handleEmailVerification();
         if (verified && !emailVerified) {
-          window.alert('Your email has been verified successfully! Redirecting to dashboard...');
+          window.alert('Your email has been verified successfully! Redirecting...');
           setEmailVerified(true);
+          
+          // Get current user to check if they have a first name
+          const { user } = await getCurrentUser();
+          if (user) {
+            const profile = await getUserProfile(user.id);
+            if (profile.data && !profile.data.full_name) {
+              // Redirect to welcome page to collect first name
+              window.location.href = '/welcome';
+            } else {
+              // Redirect to dashboard
+              window.location.href = '/dashboard';
+            }
+          }
         }
       } catch (error) {
         console.error('Error checking email verification:', error);
@@ -187,6 +211,7 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     userProfile,
+    setUserProfile,
     userData,
     setUserData,
     loading,

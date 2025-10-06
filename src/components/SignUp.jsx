@@ -6,7 +6,6 @@ export default function SignUp({ onSignUpSuccess, switchToSignIn }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [signUpComplete, setSignUpComplete] = useState(false);
@@ -16,14 +15,9 @@ export default function SignUp({ onSignUpSuccess, switchToSignIn }) {
     setLoading(true);
     setError('');
 
-    if (!name.trim()) {
-      setError('Please enter your name');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { user, error } = await signUp(email, password, name);
+      // Pass an empty string for name since we're not collecting it here anymore
+      const { user, error } = await signUp(email, password, '');
       
       if (error) {
         setError(error.message);
@@ -86,18 +80,6 @@ export default function SignUp({ onSignUpSuccess, switchToSignIn }) {
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">First Name</label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="Enter your first name"
-              disabled={loading}
-            />
-          </div>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
